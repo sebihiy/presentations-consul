@@ -1,0 +1,99 @@
+%title: CONSUL - Introduction
+%author: xavki
+
+
+-> CONSUL : Sommaire <-
+
+
+1 - introduction & notions
+
+2 - installation d'un serveur consul
+
+3 - installation consul et systemd
+
+4 - installation consul agent
+
+5 - premier service : appli python
+
+6 - installation haproxy
+
+7 - installation/utilisation de consul-template
+
+8 - conlusion
+
+
+Source : https://www.consul.io/
+
+Société : Hashicorp (vagrant, terraform...)
+
+-------------------------------------------------------------------------------------------------
+
+
+-> CONSUL c'est quoi ? <-
+=========
+
+
+
+* notion de service (microservices)
+	- service = une instance (application, base de données...)
+	- une couche d'abstraction au-dessus des IP/ports
+	- exemple : service app1
+		- 172.17.0.2:80
+		- 172.17.0.3:80
+		- etc
+
+<br>
+
+
+* CONSUL : 
+	- service discovery
+	- service registry
+	- interrogeable à volonté : tel service = telles machines/ports
+	- exemple : similaire à docker-compose
+
+
+```
+sudo apt-get install consul
+```
+attention : la version installé est pas top
+
+```
+https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
+```
+
+-------------------------------------------------------------------------------------------------
+
+
+
+-> Intérêt <-
+
+
+
+* CONSUL : une sorte de DNS de services
+
+	- remplace les ip dans les applications
+	- remplace les ip/ports dans les services (haproxy...)
+	- healthcheck
+
+	=> réduire et faciliter les maj de conf
+
+
+* facilité pour les maintenances
+
+	- faire entre une machine dans un pool
+
+	- sortir une machine d'un pool
+
+	- healthcheck : pour vérifier si service up
+
+* interface graphique + API (requête curl)
+
+* gestion multidatacenter (zoning)
+
+* intégré dans les Proxy/LB modernes (souvent avec un intermédiaire)
+	- nginx
+	- haproxy
+	- envoy
+	- linkerd
+	- apache
+	- ...

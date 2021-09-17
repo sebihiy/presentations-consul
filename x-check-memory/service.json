@@ -1,0 +1,14 @@
+
+{"service":
+        {
+    "name": "monservice",
+    "tags": ["python"],
+    "port": 5000,
+    "check": {
+      "id": "Memory usage",
+      "script": "memusage.sh",
+      "interval": "10s"
+    }
+  }
+}
+

@@ -1,0 +1,171 @@
+%title: CONSUL - Installation serveur
+%author: xavki
+
+
+-> CONSUL : Installation d'un serveur<-
+
+
+
+
+* adoption du service discovery = forte dépendance de votre infrastructure
+
+
+* cluster consul : mini 3 serveurs (1 leader désigné) / principe de quorum
+
+
+* consul client : transmission de la conf des services
+
+
+* service discovery est inerrogé via les serveurs (et pas les clients)
+
+
+* tutos : pas de cluster mais une archi simplifiée fonctionnelle
+
+
+----------------------------------------------------------------------------------------
+
+
+-> Installation <-
+
+
+Par le paquet :
+
+```
+sudo apt-get install consul
+```
+
+Sinon, la méthode plus complète (user...) :
+
+```
+wget https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
+unzip consul_${VER}_linux_amd64.zip
+sudo mv consul /usr/local/bin/ 
+sudo groupadd --system consul
+sudo useradd -s /sbin/nologin --system -g consul consul 
+sudo mkdir -p /var/lib/consul 
+sudo chown -R consul:consul /var/lib/consul 
+sudo chmod -R 775 /var/lib/consul 
+sudo mkdir /etc/consul.d 
+sudo chown -R consul:consul /etc/consul.d
+```
+
+-----------------------------------------------------------------------------------------
+
+
+-> Lancer le serveur <-
+
+
+
+
+Avec configuration en ligne de commande et sas fichier de conf :
+
+```
+consul agent -node server1 -data-dir=/var/lib/consul/ -config-dir /etc/consul.d/ -ui -client 0.0.0.0 -server -bootstrap
+```
+
+* node : nom su serveur
+
+* data-dir : répertoire de stockage des datas
+
+* config-dir : localisation des fichiers de conf (consul + services)
+
+* server : type de machine (agent / serveur)
+
+* client: adresse d'écoute
+
+* ui : interface graphique
+
+* bootstrap : mode bootstrap
+
+----------------------------------------------------------------------------------------
+
+-> premier service <-
+
+
+```
+{"service": {"name": "monservice", "tags": ["python"], "port": 5000}}
+```
+
+* prise en compte de la conf
+
+```
+consul reload
+```
+
+* test dns (dnsutils)
+
+```
+dig @127.0.0.1 -p 8600 monservice.service.consul +short
+```
+
+
+ ---------------------------------------------------------------------------------------
+
+-> Via le fichier de conf <-
+
+
+
+Avec configuration par fichier :
+
+```
+{
+    "advertise_addr": "172.17.0.2",
+    "bind_addr": "172.17.0.2",
+    "bootstrap_expect": 2,
+    "client_addr": "0.0.0.0",
+    "datacenter": "mydc",
+    "data_dir": "/var/lib/consul",
+    "domain": "consul",
+    "enable_script_checks": true,
+    "dns_config": {
+        "enable_truncate": true,
+        "only_passing": true
+    },
+    "enable_syslog": true,
+    "encrypt": "<keygen>",
+    "leave_on_terminate": true,
+    "log_level": "INFO",
+    "rejoin_after_leave": true,
+    "retry_join": [
+    	"172.17.0.2"
+    ],
+    "server": true,
+    "start_join": [
+        "172.17.0.2"
+    ],
+    "ui": true
+}
+```
+
+----------------------------------------------------------------------------------------
+
+
+-> Création d'un service dans système d <-
+
+
+
+```
+[Unit]
+Description=Consul Service Discovery Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=consul
+Group=consul
+ExecStart=/usr/local/bin/consul agent	-node=<nom_serveur> \
+	-bind=<serveur_ip> \
+  -advertise=<serbeur_ip> \
+	-data-dir=/var/lib/consul \
+  -config-dir=/etc/consul.d
+
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGINT
+TimeoutStopSec=5
+Restart=on-failure
+SyslogIdentifier=consul
+
+[Install]
+WantedBy=multi-user.target
+```

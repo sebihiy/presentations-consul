@@ -1,0 +1,30 @@
+# template consul template pour haproxy
+global
+        daemon
+        maxconn 256
+
+defaults
+        mode http
+        timeout connect 5000ms
+        timeout client 50000ms
+        timeout server 50000ms
+
+
+frontend http_standard
+bind "*:80"
+mode http
+{{ range services }}{{ if ne .Name "consul" }}
+acl front_{{ .Name }} hdr_dom(host) -i {{ range .Tags }}{{ .  | regexReplaceAll "url:(.*)" "$1" }}{{ end }}
+use_backend back_{{ .Name }} if front_{{ .Name }}
+{{ end }}{{ end }}
+
+
+{{ range services }}{{ if ne .Name "consul" }}
+backend back_{{.Name}}{{$service:=.Name }}
+  mode http
+  option http-server-close
+  balance roundrobin{{range service $service }}
+  server {{ .Node }} {{.Address }}:{{ .Port }} {{ end }}
+{{end}}
+{{end}}
+

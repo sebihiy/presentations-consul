@@ -1,0 +1,67 @@
+%title: CONSUL - Premier service
+%author: xavki
+
+
+-> CONSUL : premier service <-
+
+<br>
+* Le fichier de conf <-
+
+Avec configuration par fichier /etc/consul/monservice.json
+
+```
+{"service":
+       	{
+		"name": "monservice", 
+		"tags": ["python"], 
+		"port": 5000,
+		"check": {
+		  "http": "http://localhost:5000/",
+		  "interval": "3s"
+		}
+	}
+}
+```
+
+et rechargement de la conf consul en local :
+
+```
+consul reload
+```
+
+* niveau dns :
+
+``` 
+dig @172.17.0.2 -p 8600 monservice.service.consul
+```
+
+--------------------------------------------------------------------------------
+
+
+-> C'est pas mal mais ça sert à quoi ? <-
+
+
+
+
+
+* modification automatique de configuration
+
+
+
+* utilisation de l'API
+
+
+
+* exemple : consul-template et haproxy
+
+
+
+* plus besoin de toucher à la conf centralisée (uniquement côté agent)
+
+
+
+* load balancer directement (si peu poussé...via url)
+
+
+
+* !!! on ne parle qu'à l'url du service

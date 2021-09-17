@@ -1,0 +1,79 @@
+%title: CONSUL - Installation serveur
+%author: xavki
+
+
+-> CONSUL : Installation d'un serveur <-
+
+
+
+
+* adoption du service discovery = forte dépendance de votre infrastructure
+
+
+* cluster consul : mini 3 serveurs (1 leader désigné) / principe de quorum
+
+
+* consul client : transmission de la conf des services
+
+
+* service discovery est inerrogé via les serveurs (et pas les clients)
+
+
+* tutos : pas de cluster mais une archi simplifiée fonctionnelle
+
+
+----------------------------------------------------------------------------------------
+
+
+-> Installation <-
+
+
+Par le paquet :
+
+```
+sudo apt-get install consul
+```
+
+Sinon, la méthode plus complète (user...) :
+
+```
+wget https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
+unzip consul_${VER}_linux_amd64.zip
+sudo mv consul /usr/local/bin/ 
+sudo groupadd --system consul
+sudo useradd -s /sbin/nologin --system -g consul consul 
+sudo mkdir -p /var/lib/consul 
+sudo chown -R consul:consul /var/lib/consul 
+sudo chmod -R 775 /var/lib/consul 
+sudo mkdir /etc/consul.d 
+sudo chown -R consul:consul /etc/consul.d
+```
+
+-----------------------------------------------------------------------------------------
+
+
+-> Lancer le serveur <-
+
+
+
+
+Avec configuration en ligne de commande et sas fichier de conf :
+
+```
+consul agent -node server1 -data-dir=/var/lib/consul/ -config-dir /etc/consul.d/ -ui -client 0.0.0.0 -server -bootstrap
+```
+
+* node : nom su serveur
+
+* data-dir : répertoire de stockage des datas
+
+* config-dir : localisation des fichiers de conf (consul + services)
+
+* server : type de machine (agent / serveur)
+
+* client: adresse d'écoute
+
+* ui : interface graphique
+
+* bootstrap : mode bootstrap
+

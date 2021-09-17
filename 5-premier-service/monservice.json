@@ -1,0 +1,12 @@
+{"service":
+       	{
+		"name": "monservice", 
+		"tags": ["python"], 
+		"port": 80,
+		"check": {
+		  "http": "http://localhost:5000/",
+		  "interval": "3s"
+		}
+	}
+}
+

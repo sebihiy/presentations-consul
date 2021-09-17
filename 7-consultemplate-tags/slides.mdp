@@ -1,0 +1,68 @@
+%title: CONSUL - Consul Template
+%author: xavki
+
+
+-> CONSUL : TAGS <-
+
+<br>
+* ajouter des metadonnées à un service
+
+<br>
+* version
+
+* type
+
+* url
+
+* environnement...
+
+
+--------------------------------------------------------------------------
+
+
+-> Comment faire ? <-
+
+<br>
+* par le fichier de configuration du service : sur le host
+
+https://www.consul.io/docs/commands/services/register.html
+
+<br>
+* par l'api : PUT
+
+https://www.consul.io/api/agent/service.html
+
+<br>
+* par le module consul de ansible
+
+https://docs.ansible.com/ansible/latest/modules/consul_module.html
+
+<br>
+* par une librairie applicative (java...)
+
+
+-------------------------------------------------------------------------
+
+
+-> Utilisation via Consult Template <-
+
+
+```
+frontend http_standard
+bind "*:80"
+mode http
+{{ range services }}{{ if ne .Name "consul" }}
+acl front_{{ .Name }} hdr_dom(host) -i {{ range .Tags }}{{ .  | regexReplaceAll "url:(.*)" "$1" }}{{ end }}
+use_backend back_{{ .Name }} if front_{{ .Name }}
+{{ end }}{{ end }}
+
+
+{{ range services }}{{ if ne .Name "consul" }}
+backend back_{{.Name}}{{$service:=.Name }}
+  mode http
+  option http-server-close
+  balance roundrobin{{range service $service }}
+  server {{ .Node }} {{.Address }}:{{ .Port }} {{ end }}
+{{end}}
+{{end}}
+```

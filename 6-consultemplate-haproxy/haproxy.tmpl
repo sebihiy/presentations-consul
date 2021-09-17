@@ -1,0 +1,25 @@
+# template consul template pour haproxy
+
+global
+        daemon
+        maxconn 256
+
+    defaults
+        mode http
+        timeout connect 5000ms
+        timeout client 50000ms
+        timeout server 50000ms
+
+frontend monservice
+        bind :80
+        mode http
+        default_backend monservice
+
+backend monservice
+        mode http
+        cookie LBN insert indirect nocache
+        option httpclose
+        option forwardfor
+        balance roundrobin {{ range service monservice }}
+        server {{ .Node }} {{.Address }}:{{ .Port }} {{ end }}
+
